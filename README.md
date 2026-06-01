@@ -1,8 +1,9 @@
 # nevercheese-pcileech-memprocfs-mcp
 
 [![CI](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/nevercheese-pcileech-memprocfs-mcp.svg)](https://pypi.org/project/nevercheese-pcileech-memprocfs-mcp/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+<!-- Add back after first PyPI release:
+[![PyPI](https://img.shields.io/pypi/v/nevercheese-pcileech-memprocfs-mcp.svg)](https://pypi.org/project/nevercheese-pcileech-memprocfs-mcp/) -->
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
 
 A Linux-native [Model Context Protocol](https://modelcontextprotocol.io/) server that gives AI assistants direct access to DMA-based memory operations through [PCILeech](https://github.com/ufrisk/pcileech) / [MemProcFS](https://github.com/ufrisk/MemProcFS).
