@@ -1,8 +1,13 @@
 # nevercheese-pcileech-memprocfs-mcp
 
+[![CI](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/nevercheese-pcileech-memprocfs-mcp.svg)](https://pypi.org/project/nevercheese-pcileech-memprocfs-mcp/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
+
 A Linux-native [Model Context Protocol](https://modelcontextprotocol.io/) server that gives AI assistants direct access to DMA-based memory operations through [PCILeech](https://github.com/ufrisk/pcileech) / [MemProcFS](https://github.com/ufrisk/MemProcFS).
 
-**34 tools** for memory inspection, process analysis, reverse engineering, and game engine SDK extraction — all through natural language.
+**37 tools** for memory inspection, process analysis, reverse engineering, and game engine SDK extraction — all through natural language.
 
 ## Why this exists
 
@@ -31,7 +36,7 @@ Built on the `memprocfs` and `leechcorepyc` Python packages directly — no subp
 | Backend | Subprocess → `pcileech.exe` | Native Python API |
 | Read size | 256-byte chunks | Up to 1MB direct |
 | Connection | New process per op | Persistent handle |
-| Tools | 9 | 34 |
+| Tools | 9 | 37 |
 
 ### Game reverse engineering
 
@@ -72,7 +77,7 @@ Find every instruction and data pointer that references an address:
 | **Unreal Engine 4/5** | `ue_dump_names` → `ue_dump_objects` → `ue_dump_sdk` | FName table, UObject list, C++ SDK headers with field offsets |
 | **Unity (IL2CPP)** | `unity_il2cpp_dump` | C# class definitions with fields, methods, and offsets — fully automatic |
 
-## Tools (34)
+## Tools (37)
 
 | Category | Count | Tools |
 |---|---|---|
@@ -85,6 +90,7 @@ Find every instruction and data pointer that references an address:
 | **Pointer / XRef** | 2 | `pointer_scan` `xref_scan` |
 | **Engine Tools** | 4 | `ue_dump_names` `ue_dump_objects` `ue_dump_sdk` `unity_il2cpp_dump` |
 | **FPGA** | 3 | `benchmark` `tlp_send` `fpga_config` |
+| **Device** | 3 | `device_disconnect` `device_reconnect` `device_status` |
 
 \* `memory_patch` is stubbed — `.sig` files are a CLI-only feature. Use `memory_search` + `memory_write` instead.
 
@@ -99,6 +105,27 @@ UE signature reference: [`docs/ue_signatures.md`](docs/ue_signatures.md)
 - USB drivers configured ([MemProcFS Linux setup](https://github.com/ufrisk/MemProcFS/wiki/_Linux))
 
 ## Installation
+
+### Quick start with `uvx` (recommended)
+
+No clone, no virtualenv — run the latest release directly with
+[`uv`](https://docs.astral.sh/uv/):
+
+```bash
+uvx nevercheese-pcileech-memprocfs-mcp
+```
+
+Or install it as a persistent command with `pipx`:
+
+```bash
+pipx install nevercheese-pcileech-memprocfs-mcp
+```
+
+This uses the default FPGA device config. To point at a custom config (file
+dump, remote agent, extra args), set the `PCILEECH_MCP_CONFIG` environment
+variable to a JSON file — see [Configuration](#configuration).
+
+### From source
 
 ```bash
 git clone https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp.git
@@ -135,7 +162,20 @@ Edit `config.json`:
 | `remote` | Remote LeechAgent | `""`, `"rpc://user@host"` |
 | `extra_args` | Extra memprocfs args | `["-v", "-printf"]` |
 
+When installed via `uvx`/`pipx`, the bundled `config.json` is read-only. Point
+at your own config instead by setting `PCILEECH_MCP_CONFIG=/path/to/config.json`
+in the environment (see the env block in the manual MCP config below).
+
 ## Adding to Claude Code
+
+**With `uvx`** (no path wrangling):
+
+```bash
+claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
+  uvx nevercheese-pcileech-memprocfs-mcp
+```
+
+**From a source checkout:**
 
 ```bash
 claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
@@ -149,8 +189,11 @@ Or add to your MCP config manually:
 {
   "mcpServers": {
     "nevercheese-pcileech-memprocfs-mcp": {
-      "command": "/path/to/.venv/bin/python",
-      "args": ["/path/to/main.py"]
+      "command": "uvx",
+      "args": ["nevercheese-pcileech-memprocfs-mcp"],
+      "env": {
+        "PCILEECH_MCP_CONFIG": "/path/to/config.json"
+      }
     }
   }
 }
@@ -205,7 +248,7 @@ source .venv/bin/activate
 python test_server.py
 ```
 
-161 tests — all use mocks, no hardware needed. Covers tool registration, handler output formatting, and algorithm correctness (pointer scanning, xref scanning with crafted PE binaries).
+164 tests — all use mocks, no hardware needed. Covers tool registration, handler output formatting, and algorithm correctness (pointer scanning, xref scanning with crafted PE binaries). The same suite runs in [CI](.github/workflows/ci.yml) on Python 3.10–3.12.
 
 ## Architecture
 
@@ -236,7 +279,10 @@ vmm_wrapper.py          ← Device init, memory ops, process/module enumeration
 
 ## License
 
-This project wraps PCILeech/MemProcFS which are licensed under AGPL-3.0 / GPL-3.0. See [MemProcFS License](https://github.com/ufrisk/MemProcFS/blob/master/LICENSE) and [LeechCore License](https://github.com/ufrisk/LeechCore/blob/master/LICENSE).
+Released under the [GNU AGPL-3.0](LICENSE), matching the copyleft terms of the
+**PCILeech / MemProcFS / LeechCore** stack this server builds on. See the
+[MemProcFS License](https://github.com/ufrisk/MemProcFS/blob/master/LICENSE) and
+[LeechCore License](https://github.com/ufrisk/LeechCore/blob/master/LICENSE).
 
 ## Disclaimer
 

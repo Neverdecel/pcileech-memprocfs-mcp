@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete reference for all 34 MCP tools.
+Complete reference for all 37 MCP tools.
 
 ---
 
@@ -446,3 +446,40 @@ Find and parse IL2CPP metadata from a running Unity game. Fully automatic — no
 Supports IL2CPP metadata versions 27-31.
 
 **Returns:** GameAssembly address, metadata address/version, type/field/method counts, class summary.
+
+---
+
+## Device
+
+### device_disconnect
+
+Disconnect from the DMA/FPGA device, releasing the MemProcFS and LeechCore
+handles so other programs can claim the device. Use this when you're done with
+analysis and want to hand the FPGA back to another DMA tool.
+
+No parameters.
+
+**Returns:** confirmation that the device was released, with a hint to call `device_reconnect` to resume.
+
+---
+
+### device_reconnect
+
+Reconnect to the DMA/FPGA device after a previous `device_disconnect`,
+re-establishing the MemProcFS (VMM) and LeechCore (LC) handles so the other
+tools work again.
+
+No parameters.
+
+**Returns:** confirmation that handles were re-established.
+
+---
+
+### device_status
+
+Check the current device connection status — whether the MemProcFS (VMM) and
+LeechCore (LC) handles are active, plus basic device info when connected.
+
+No parameters.
+
+**Returns:** connection state of the VMM and LC handles, device type, and basic info if connected.
