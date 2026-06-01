@@ -47,8 +47,9 @@ class PointerScanner:
                 return (name, addr - base)
         return None
 
-    def scan(self, target_address, max_depth=5, max_offset=4096,
-             max_results=100, module_filter=None):
+    def scan(
+        self, target_address, max_depth=5, max_offset=4096, max_results=100, module_filter=None
+    ):
         """Scan for pointer chains from static module bases to a target address.
 
         Algorithm:
@@ -76,14 +77,14 @@ class PointerScanner:
         module_map = self._get_modules(module_filter)
         if not module_map:
             return {
-                'chains': [],
-                'stats': {
-                    'target': f'0x{target_address:x}',
-                    'max_depth': max_depth,
-                    'max_offset': max_offset,
-                    'levels_searched': 0,
-                    'total_chains_found': 0,
-                    'addresses_scanned': 0,
+                "chains": [],
+                "stats": {
+                    "target": f"0x{target_address:x}",
+                    "max_depth": max_depth,
+                    "max_offset": max_offset,
+                    "levels_searched": 0,
+                    "total_chains_found": 0,
+                    "addresses_scanned": 0,
                 },
             }
 
@@ -91,21 +92,21 @@ class PointerScanner:
         vad_ranges = []
         try:
             for vad in self._proc.maps.vad():
-                start = vad.get('start', vad.get('va', 0))
-                size = vad.get('size', vad.get('cb', 0))
+                start = vad.get("start", vad.get("va", 0))
+                size = vad.get("size", vad.get("cb", 0))
                 # Only scan regions up to 128 MB
                 if size > 0 and size <= 128 * 1024 * 1024:
                     vad_ranges.append((start, size))
         except Exception:
             return {
-                'chains': [],
-                'stats': {
-                    'target': f'0x{target_address:x}',
-                    'max_depth': max_depth,
-                    'max_offset': max_offset,
-                    'levels_searched': 0,
-                    'total_chains_found': 0,
-                    'addresses_scanned': 0,
+                "chains": [],
+                "stats": {
+                    "target": f"0x{target_address:x}",
+                    "max_depth": max_depth,
+                    "max_offset": max_offset,
+                    "levels_searched": 0,
+                    "total_chains_found": 0,
+                    "addresses_scanned": 0,
                 },
             }
 
@@ -144,7 +145,7 @@ class PointerScanner:
 
                     # Scan for 8-byte aligned pointers in [lo, hi]
                     for pos in range(0, len(data) - 7, 8):
-                        ptr_val = struct.unpack_from('<Q', data, pos)[0]
+                        ptr_val = struct.unpack_from("<Q", data, pos)[0]
                         if lo <= ptr_val <= hi:
                             total_scanned += 1
                             hit_addr = vad_start + pos
@@ -159,27 +160,29 @@ class PointerScanner:
                             if mod_info is not None:
                                 mod_name, base_offset = mod_info
                                 # Build expression
-                                expr = f'[{mod_name}+0x{base_offset:x}]'
+                                expr = f"[{mod_name}+0x{base_offset:x}]"
                                 for off in new_offsets[:-1]:
                                     if off >= 0:
-                                        expr = f'[{expr}+0x{off:x}]'
+                                        expr = f"[{expr}+0x{off:x}]"
                                     else:
-                                        expr = f'[{expr}-0x{-off:x}]'
+                                        expr = f"[{expr}-0x{-off:x}]"
                                 # Last offset (closest to target)
                                 if new_offsets:
                                     last_off = new_offsets[-1]
                                     if last_off >= 0:
-                                        expr = f'{expr}+0x{last_off:x}'
+                                        expr = f"{expr}+0x{last_off:x}"
                                     elif last_off < 0:
-                                        expr = f'{expr}-0x{-last_off:x}'
+                                        expr = f"{expr}-0x{-last_off:x}"
 
-                                chains.append({
-                                    'module': mod_name,
-                                    'base_offset': base_offset,
-                                    'offsets': new_offsets,
-                                    'depth': len(new_offsets),
-                                    'expression': expr,
-                                })
+                                chains.append(
+                                    {
+                                        "module": mod_name,
+                                        "base_offset": base_offset,
+                                        "offsets": new_offsets,
+                                        "depth": len(new_offsets),
+                                        "expression": expr,
+                                    }
+                                )
                                 if len(chains) >= max_results:
                                     break
                             else:
@@ -190,14 +193,14 @@ class PointerScanner:
             pending = next_pending
 
         return {
-            'chains': chains,
-            'stats': {
-                'target': f'0x{target_address:x}',
-                'max_depth': max_depth,
-                'max_offset': max_offset,
-                'levels_searched': levels_searched,
-                'total_chains_found': len(chains),
-                'addresses_scanned': total_scanned,
+            "chains": chains,
+            "stats": {
+                "target": f"0x{target_address:x}",
+                "max_depth": max_depth,
+                "max_offset": max_offset,
+                "levels_searched": levels_searched,
+                "total_chains_found": len(chains),
+                "addresses_scanned": total_scanned,
             },
         }
 
@@ -224,21 +227,19 @@ class XRefScanner:
         """
         import memprocfs
 
-        dos_header = self._proc.memory.read(
-            module_base, 64, memprocfs.FLAG_ZEROPAD_ON_FAIL
-        )
-        if dos_header[:2] != b'MZ':
+        dos_header = self._proc.memory.read(module_base, 64, memprocfs.FLAG_ZEROPAD_ON_FAIL)
+        if dos_header[:2] != b"MZ":
             raise RuntimeError(f"Invalid PE: no MZ signature at 0x{module_base:x}")
 
-        e_lfanew = struct.unpack_from('<I', dos_header, 0x3C)[0]
+        e_lfanew = struct.unpack_from("<I", dos_header, 0x3C)[0]
         pe_header = self._proc.memory.read(
             module_base + e_lfanew, 264, memprocfs.FLAG_ZEROPAD_ON_FAIL
         )
-        if pe_header[:4] != b'PE\x00\x00':
+        if pe_header[:4] != b"PE\x00\x00":
             raise RuntimeError("Invalid PE: no PE signature")
 
-        num_sections = struct.unpack_from('<H', pe_header, 6)[0]
-        size_of_optional = struct.unpack_from('<H', pe_header, 20)[0]
+        num_sections = struct.unpack_from("<H", pe_header, 6)[0]
+        size_of_optional = struct.unpack_from("<H", pe_header, 20)[0]
 
         section_table_offset = module_base + e_lfanew + 4 + 20 + size_of_optional
         section_data = self._proc.memory.read(
@@ -248,24 +249,23 @@ class XRefScanner:
         sections = []
         for i in range(num_sections):
             off = i * 40
-            name = section_data[off:off + 8].split(b'\x00')[0].decode(
-                'ascii', errors='replace'
-            )
-            virtual_size = struct.unpack_from('<I', section_data, off + 8)[0]
-            rva = struct.unpack_from('<I', section_data, off + 12)[0]
-            characteristics = struct.unpack_from('<I', section_data, off + 36)[0]
+            name = section_data[off : off + 8].split(b"\x00")[0].decode("ascii", errors="replace")
+            virtual_size = struct.unpack_from("<I", section_data, off + 8)[0]
+            rva = struct.unpack_from("<I", section_data, off + 12)[0]
+            characteristics = struct.unpack_from("<I", section_data, off + 36)[0]
 
-            sections.append({
-                'name': name,
-                'rva': rva,
-                'virtual_size': virtual_size,
-                'characteristics': characteristics,
-            })
+            sections.append(
+                {
+                    "name": name,
+                    "rva": rva,
+                    "virtual_size": virtual_size,
+                    "characteristics": characteristics,
+                }
+            )
 
         return sections
 
-    def scan(self, target_address, module_name, scan_code=True, scan_data=True,
-             max_results=200):
+    def scan(self, target_address, module_name, scan_code=True, scan_data=True, max_results=200):
         """Find all code and data cross-references to target_address within a module.
 
         Algorithm:
@@ -307,10 +307,10 @@ class XRefScanner:
             if total_found >= max_results:
                 break
 
-            sec_chars = section['characteristics']
-            sec_rva = section['rva']
-            sec_size = section['virtual_size']
-            sec_name = section['name']
+            sec_chars = section["characteristics"]
+            sec_rva = section["rva"]
+            sec_size = section["virtual_size"]
+            sec_name = section["name"]
             sec_base = base + sec_rva
 
             is_code = bool(sec_chars & 0x20)
@@ -327,8 +327,7 @@ class XRefScanner:
                 total_bytes_scanned += len(data)
 
                 refs = self._scan_code_section(
-                    data, sec_base, sec_name, target_address,
-                    max_results - total_found
+                    data, sec_base, sec_name, target_address, max_results - total_found
                 )
                 code_refs.extend(refs)
                 total_found += len(refs)
@@ -344,27 +343,25 @@ class XRefScanner:
                 total_bytes_scanned += len(data)
 
                 refs = self._scan_data_section(
-                    data, sec_base, sec_name, target_address,
-                    max_results - total_found
+                    data, sec_base, sec_name, target_address, max_results - total_found
                 )
                 data_refs.extend(refs)
                 total_found += len(refs)
 
         return {
-            'target': f'0x{target_address:x}',
-            'module': module_name,
-            'code_refs': code_refs,
-            'data_refs': data_refs,
-            'stats': {
-                'code_sections_scanned': code_sections_scanned,
-                'data_sections_scanned': data_sections_scanned,
-                'total_bytes_scanned': total_bytes_scanned,
+            "target": f"0x{target_address:x}",
+            "module": module_name,
+            "code_refs": code_refs,
+            "data_refs": data_refs,
+            "stats": {
+                "code_sections_scanned": code_sections_scanned,
+                "data_sections_scanned": data_sections_scanned,
+                "total_bytes_scanned": total_bytes_scanned,
             },
         }
 
     @staticmethod
-    def _scan_code_section(data, section_base, section_name,
-                           target_address, remaining):
+    def _scan_code_section(data, section_base, section_name, target_address, remaining):
         """Scan a code section for RIP-relative and E8/E9 references.
 
         Uses a constant-sum technique for a single-pass scan. For all
@@ -403,7 +400,7 @@ class XRefScanner:
         for dp in range(0, data_len - 3):
             if len(results) >= remaining:
                 break
-            disp = unpack_i32('<i', data, dp)[0]
+            disp = unpack_i32("<i", data, dp)[0]
             if dp + disp != k:
                 continue
 
@@ -413,13 +410,15 @@ class XRefScanner:
                 if data[instr_pos] not in (0xE8, 0xE9):
                     instr_addr = section_base + instr_pos
                     ctx_end = min(data_len, instr_pos + 7)
-                    results.append({
-                        'address': f'0x{instr_addr:x}',
-                        'type': 'rip_rel_7',
-                        'instruction_bytes': data[instr_pos:ctx_end].hex(),
-                        'section': section_name,
-                        'displacement': disp,
-                    })
+                    results.append(
+                        {
+                            "address": f"0x{instr_addr:x}",
+                            "type": "rip_rel_7",
+                            "instruction_bytes": data[instr_pos:ctx_end].hex(),
+                            "section": section_name,
+                            "displacement": disp,
+                        }
+                    )
 
             # 6-byte RIP-relative: disp at byte 2, instruction at dp-2
             if dp >= 2:
@@ -427,13 +426,15 @@ class XRefScanner:
                 if data[instr_pos] not in (0xE8, 0xE9):
                     instr_addr = section_base + instr_pos
                     ctx_end = min(data_len, instr_pos + 6)
-                    results.append({
-                        'address': f'0x{instr_addr:x}',
-                        'type': 'rip_rel_6',
-                        'instruction_bytes': data[instr_pos:ctx_end].hex(),
-                        'section': section_name,
-                        'displacement': disp,
-                    })
+                    results.append(
+                        {
+                            "address": f"0x{instr_addr:x}",
+                            "type": "rip_rel_6",
+                            "instruction_bytes": data[instr_pos:ctx_end].hex(),
+                            "section": section_name,
+                            "displacement": disp,
+                        }
+                    )
 
             # 5-byte E8/E9: disp at byte 1, instruction at dp-1
             if dp >= 1:
@@ -441,20 +442,21 @@ class XRefScanner:
                 opcode = data[instr_pos]
                 if opcode in (0xE8, 0xE9):
                     instr_addr = section_base + instr_pos
-                    ref_type = 'call_e8' if opcode == 0xE8 else 'jmp_e9'
-                    results.append({
-                        'address': f'0x{instr_addr:x}',
-                        'type': ref_type,
-                        'instruction_bytes': data[instr_pos:instr_pos + 5].hex(),
-                        'section': section_name,
-                        'displacement': disp,
-                    })
+                    ref_type = "call_e8" if opcode == 0xE8 else "jmp_e9"
+                    results.append(
+                        {
+                            "address": f"0x{instr_addr:x}",
+                            "type": ref_type,
+                            "instruction_bytes": data[instr_pos : instr_pos + 5].hex(),
+                            "section": section_name,
+                            "displacement": disp,
+                        }
+                    )
 
         return results
 
     @staticmethod
-    def _scan_data_section(data, section_base, section_name,
-                           target_address, remaining):
+    def _scan_data_section(data, section_base, section_name, target_address, remaining):
         """Scan a data section for absolute 8-byte pointer references.
 
         Searches for the target address packed as a little-endian 64-bit value
@@ -471,7 +473,7 @@ class XRefScanner:
             List of data_ref dicts.
         """
         results = []
-        target_bytes = struct.pack('<Q', target_address)
+        target_bytes = struct.pack("<Q", target_address)
         search_start = 0
 
         while len(results) < remaining:
@@ -484,11 +486,13 @@ class XRefScanner:
                 # Context: 16 bytes surrounding the match (8 before, 8 after if available)
                 ctx_start = max(0, idx - 8)
                 ctx_end = min(len(data), idx + 16)
-                results.append({
-                    'address': f'0x{ref_addr:x}',
-                    'section': section_name,
-                    'context': data[ctx_start:ctx_end].hex(),
-                })
+                results.append(
+                    {
+                        "address": f"0x{ref_addr:x}",
+                        "section": section_name,
+                        "context": data[ctx_start:ctx_end].hex(),
+                    }
+                )
             search_start = idx + 8  # Move past this position (aligned step)
 
         return results

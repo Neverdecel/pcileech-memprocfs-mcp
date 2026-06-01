@@ -16,9 +16,15 @@ from mcp.server import Server
 from mcp.types import Tool, TextContent
 
 from vmm_wrapper import (
-    VmmWrapper, PCILeechError, DeviceNotFoundError,
-    MemoryAccessError, SignatureNotFoundError, ProbeNotSupportedError,
-    KMDError, parse_hex_address, format_hex_dump,
+    VmmWrapper,
+    PCILeechError,
+    DeviceNotFoundError,
+    MemoryAccessError,
+    SignatureNotFoundError,
+    ProbeNotSupportedError,
+    KMDError,
+    parse_hex_address,
+    format_hex_dump,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +48,9 @@ def get_wrapper() -> VmmWrapper:
 def validate_mutually_exclusive(args: dict, *param_names: str) -> str | None:
     provided = [name for name in param_names if args.get(name) is not None]
     if len(provided) > 1:
-        return f"Parameters {', '.join(provided)} are mutually exclusive - only one can be specified"
+        return (
+            f"Parameters {', '.join(provided)} are mutually exclusive - only one can be specified"
+        )
     return None
 
 
@@ -54,13 +62,13 @@ def format_dword_array(data: bytes) -> str:
     dwords = []
     for i in range(0, len(data), 4):
         if i + 4 <= len(data):
-            dword = int.from_bytes(data[i:i+4], byteorder='little', signed=False)
+            dword = int.from_bytes(data[i : i + 4], byteorder="little", signed=False)
             dwords.append(f"0x{dword:08x}")
     return str(dwords)
 
 
 def format_ascii_view(data: bytes) -> str:
-    return ''.join(chr(b) if 32 <= b < 127 else '.' for b in data)
+    return "".join(chr(b) if 32 <= b < 127 else "." for b in data)
 
 
 def mode_string(pid, process_name) -> str:
@@ -72,6 +80,7 @@ def mode_string(pid, process_name) -> str:
 
 
 # ==================== Tool Definitions ====================
+
 
 @server.list_tools()
 async def list_tools() -> list[Tool]:
@@ -169,7 +178,10 @@ async def list_tools() -> list[Tool]:
                     },
                     "formats": {
                         "type": "array",
-                        "items": {"type": "string", "enum": ["hexdump", "ascii", "bytes", "dwords", "raw"]},
+                        "items": {
+                            "type": "string",
+                            "enum": ["hexdump", "ascii", "bytes", "dwords", "raw"],
+                        },
                         "description": "Which views to include. 'hexdump' = hex + ASCII sidebar, 'ascii' = printable text only, 'bytes' = decimal array, 'dwords' = 32-bit LE integers, 'raw' = continuous hex string. Default: all.",
                     },
                     "pid": {
@@ -239,8 +251,14 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "min_address": {"type": "string", "description": "Start address of dump range in hex"},
-                    "max_address": {"type": "string", "description": "End address of dump range in hex"},
+                    "min_address": {
+                        "type": "string",
+                        "description": "Start address of dump range in hex",
+                    },
+                    "max_address": {
+                        "type": "string",
+                        "description": "End address of dump range in hex",
+                    },
                     "output_file": {
                         "type": "string",
                         "description": "File path to save the dump. Auto-generated as dump_<min>-<max>.raw if omitted.",
@@ -297,7 +315,10 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "signature": {"type": "string", "description": "Signature file name (NOT SUPPORTED — use memory_search + memory_write instead)"},
+                    "signature": {
+                        "type": "string",
+                        "description": "Signature file name (NOT SUPPORTED — use memory_search + memory_write instead)",
+                    },
                     "min_address": {"type": "string"},
                     "max_address": {"type": "string"},
                     "patch_all": {"type": "boolean", "default": False},
@@ -588,15 +609,28 @@ async def list_tools() -> list[Tool]:
                         "items": {
                             "type": "object",
                             "properties": {
-                                "address": {"type": "string", "description": "Memory address in hex"},
-                                "size": {"type": "integer", "description": "Bytes to read (1 to 1MB)", "minimum": 1},
+                                "address": {
+                                    "type": "string",
+                                    "description": "Memory address in hex",
+                                },
+                                "size": {
+                                    "type": "integer",
+                                    "description": "Bytes to read (1 to 1MB)",
+                                    "minimum": 1,
+                                },
                             },
                             "required": ["address", "size"],
                         },
                         "description": "List of memory regions to read. Max 1024 entries.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID for virtual address reads."},
-                    "process_name": {"type": "string", "description": "Process name for virtual address reads."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID for virtual address reads.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name for virtual address reads.",
+                    },
                 },
                 "required": ["reads"],
             },
@@ -612,9 +646,18 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
-                    "module_name": {"type": "string", "description": "Module to enumerate sections from (e.g. 'game.exe')."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
+                    "module_name": {
+                        "type": "string",
+                        "description": "Module to enumerate sections from (e.g. 'game.exe').",
+                    },
                 },
                 "required": ["module_name"],
             },
@@ -636,8 +679,14 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "AOB pattern with ?? wildcards (e.g. '48 8B 05 ?? ?? ?? ??')",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "module": {
                         "type": "string",
                         "description": "Module to scan (e.g. 'game.exe'). Highly recommended for speed.",
@@ -648,7 +697,8 @@ async def list_tools() -> list[Tool]:
                         "default": 3,
                     },
                     "op_length": {
-                        "type": "integer", "enum": [1, 2, 4, 8],
+                        "type": "integer",
+                        "enum": [1, 2, 4, 8],
                         "description": "Size of the operand in bytes. Default: 4 (32-bit displacement).",
                         "default": 4,
                     },
@@ -678,8 +728,14 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "module": {
                         "type": "string",
                         "description": "Module to scan for RTTI (e.g. 'game.exe', 'client.dll'). Required.",
@@ -712,10 +768,18 @@ async def list_tools() -> list[Tool]:
                     "size": {
                         "type": "integer",
                         "description": "Bytes to analyze (8-4096). Default: 256.",
-                        "default": 256, "minimum": 8, "maximum": 4096,
+                        "default": 256,
+                        "minimum": 8,
+                        "maximum": 4096,
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                 },
                 "required": ["address"],
             },
@@ -731,8 +795,14 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "module": {
                         "type": "string",
                         "description": "Restrict scan to this module (e.g. 'game.exe'). Much faster than full process scan.",
@@ -740,10 +810,12 @@ async def list_tools() -> list[Tool]:
                     "min_length": {
                         "type": "integer",
                         "description": "Minimum string length to report. Default: 4.",
-                        "default": 4, "minimum": 3,
+                        "default": 4,
+                        "minimum": 3,
                     },
                     "encoding": {
-                        "type": "string", "enum": ["ascii", "unicode", "both"],
+                        "type": "string",
+                        "enum": ["ascii", "unicode", "both"],
                         "description": "'ascii' = 8-bit strings, 'unicode' = UTF-16LE, 'both' = scan for both. Default: 'both'.",
                         "default": "both",
                     },
@@ -781,15 +853,22 @@ async def list_tools() -> list[Tool]:
                     "size": {
                         "type": "integer",
                         "description": "Size of the region in bytes (1-1MB).",
-                        "minimum": 1, "maximum": 1048576,
+                        "minimum": 1,
+                        "maximum": 1048576,
                     },
                     "label": {
                         "type": "string",
                         "description": "Label for this snapshot group. Use different labels for different regions. Default: 'default'.",
                         "default": "default",
                     },
-                    "pid": {"type": "integer", "description": "Process ID for virtual address mode."},
-                    "process_name": {"type": "string", "description": "Process name for virtual address mode."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID for virtual address mode.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name for virtual address mode.",
+                    },
                 },
                 "required": ["address", "size"],
             },
@@ -811,17 +890,27 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Dynamic address to find chains to, in hex.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "max_depth": {
                         "type": "integer",
                         "description": "Maximum pointer chain depth. Default: 5. Start with 3 for speed.",
-                        "default": 5, "minimum": 1, "maximum": 10,
+                        "default": 5,
+                        "minimum": 1,
+                        "maximum": 10,
                     },
                     "max_offset": {
                         "type": "integer",
                         "description": "Maximum offset at each pointer level. Default: 4096.",
-                        "default": 4096, "minimum": 0, "maximum": 65536,
+                        "default": 4096,
+                        "minimum": 0,
+                        "maximum": 65536,
                     },
                     "max_results": {
                         "type": "integer",
@@ -852,8 +941,14 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Address to find references to, in hex.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "module": {
                         "type": "string",
                         "description": "Module to scan for references (e.g. 'game.exe'). Required.",
@@ -893,15 +988,22 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Address of GNames/FNamePool in hex. Find via signature_resolve.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "max_names": {
                         "type": "integer",
                         "description": "Maximum names to dump. Default: 200000.",
                         "default": 200000,
                     },
                     "ue_version": {
-                        "type": "string", "enum": ["ue4", "ue5"],
+                        "type": "string",
+                        "enum": ["ue4", "ue5"],
                         "description": "Unreal Engine version. Default: 'ue5'.",
                         "default": "ue5",
                     },
@@ -924,8 +1026,14 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Address of GUObjectArray in hex. Find via signature_resolve.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "gnames_address": {
                         "type": "string",
                         "description": "Address of GNames/FNamePool for name resolution. Highly recommended.",
@@ -936,7 +1044,8 @@ async def list_tools() -> list[Tool]:
                         "default": 200000,
                     },
                     "ue_version": {
-                        "type": "string", "enum": ["ue4", "ue5"],
+                        "type": "string",
+                        "enum": ["ue4", "ue5"],
                         "description": "Unreal Engine version. Default: 'ue5'.",
                         "default": "ue5",
                     },
@@ -963,8 +1072,14 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Address of GNames/FNamePool in hex.",
                     },
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "output_file": {
                         "type": "string",
                         "description": "File path to write SDK headers. If omitted, returns summary only.",
@@ -975,7 +1090,8 @@ async def list_tools() -> list[Tool]:
                         "default": 5000,
                     },
                     "ue_version": {
-                        "type": "string", "enum": ["ue4", "ue5"],
+                        "type": "string",
+                        "enum": ["ue4", "ue5"],
                         "description": "Unreal Engine version. Default: 'ue5'.",
                         "default": "ue5",
                     },
@@ -994,8 +1110,14 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "pid": {"type": "integer", "description": "Process ID. Mutually exclusive with process_name."},
-                    "process_name": {"type": "string", "description": "Process name. Mutually exclusive with pid."},
+                    "pid": {
+                        "type": "integer",
+                        "description": "Process ID. Mutually exclusive with process_name.",
+                    },
+                    "process_name": {
+                        "type": "string",
+                        "description": "Process name. Mutually exclusive with pid.",
+                    },
                     "output_file": {
                         "type": "string",
                         "description": "File path to write C# class definitions. If omitted, returns summary only.",
@@ -1098,7 +1220,6 @@ async def list_tools() -> list[Tool]:
                 "required": [],
             },
         ),
-
         # ==================== Device Lifecycle ====================
         Tool(
             name="device_disconnect",
@@ -1145,6 +1266,7 @@ async def list_tools() -> list[Tool]:
 
 
 # ==================== Tool Handlers ====================
+
 
 @server.call_tool()
 async def call_tool(name: str, arguments: Any) -> list[TextContent]:
@@ -1212,17 +1334,21 @@ async def handle_memory_read(args: dict) -> list[TextContent]:
 
     mode = mode_string(pid, process_name)
     w = get_wrapper()
-    data = await asyncio.to_thread(w.read_memory, address, length, pid=pid, process_name=process_name)
+    data = await asyncio.to_thread(
+        w.read_memory, address, length, pid=pid, process_name=process_name
+    )
 
-    return [TextContent(
-        type="text",
-        text=(
-            f"Read {len(data)} bytes from {address} ({mode})\n\n"
-            f"Hex: {data.hex()}\n\n"
-            f"Bytes read: {len(data)}\n"
-            f"Timestamp: {datetime.now().isoformat()}"
-        ),
-    )]
+    return [
+        TextContent(
+            type="text",
+            text=(
+                f"Read {len(data)} bytes from {address} ({mode})\n\n"
+                f"Hex: {data.hex()}\n\n"
+                f"Bytes read: {len(data)}\n"
+                f"Timestamp: {datetime.now().isoformat()}"
+            ),
+        )
+    ]
 
 
 async def handle_memory_write(args: dict) -> list[TextContent]:
@@ -1244,14 +1370,16 @@ async def handle_memory_write(args: dict) -> list[TextContent]:
     w = get_wrapper()
     await asyncio.to_thread(w.write_memory, address, data, pid=pid, process_name=process_name)
 
-    return [TextContent(
-        type="text",
-        text=(
-            f"Wrote {len(data)} bytes to {address} ({mode})\n\n"
-            f"Data: {data_hex}\n"
-            f"Timestamp: {datetime.now().isoformat()}"
-        ),
-    )]
+    return [
+        TextContent(
+            type="text",
+            text=(
+                f"Wrote {len(data)} bytes to {address} ({mode})\n\n"
+                f"Data: {data_hex}\n"
+                f"Timestamp: {datetime.now().isoformat()}"
+            ),
+        )
+    ]
 
 
 async def handle_memory_format(args: dict) -> list[TextContent]:
@@ -1266,7 +1394,9 @@ async def handle_memory_format(args: dict) -> list[TextContent]:
         return [TextContent(type="text", text=f"Parameter error: {error}")]
 
     w = get_wrapper()
-    data = await asyncio.to_thread(w.read_memory, address, length, pid=pid, process_name=process_name)
+    data = await asyncio.to_thread(
+        w.read_memory, address, length, pid=pid, process_name=process_name
+    )
     addr_int = parse_hex_address(address)
 
     parts = [f"Memory at {address} ({length} bytes)", "=" * 80, ""]
@@ -1292,7 +1422,7 @@ async def handle_system_info(args: dict) -> list[TextContent]:
 
     parts = ["## System Information", "=" * 50, ""]
     for k, v in info.items():
-        if k == 'memmap':
+        if k == "memmap":
             parts.append(f"**Memory Regions:** {len(v)}")
         else:
             parts.append(f"**{k}:** {v}")
@@ -1329,7 +1459,9 @@ async def handle_memory_dump(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        "## Memory Dump Result", "=" * 50, "",
+        "## Memory Dump Result",
+        "=" * 50,
+        "",
         f"**Range:** {result['min_address']} - {result['max_address']}",
         f"**Size:** {result['size']} bytes",
         f"**File:** {result.get('file', 'N/A')}",
@@ -1462,8 +1594,13 @@ async def handle_aob_scan(args: dict) -> list[TextContent]:
 
     target = f"PID {pid}" if pid else process_name
     module_info = f" in {args['module']}" if args.get("module") else ""
-    parts = [f"## AOB Scan Results ({target}{module_info})", "=" * 50, "",
-             f"**Pattern:** `{args['pattern']}`", ""]
+    parts = [
+        f"## AOB Scan Results ({target}{module_info})",
+        "=" * 50,
+        "",
+        f"**Pattern:** `{args['pattern']}`",
+        "",
+    ]
 
     if not matches:
         parts.append("No matches found.")
@@ -1495,7 +1632,9 @@ async def handle_module_dump(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        "## Module Dump Result", "=" * 50, "",
+        "## Module Dump Result",
+        "=" * 50,
+        "",
         f"**Module:** {result['module']}",
         f"**Base:** {result['base']}",
         f"**Size:** {result['size']} bytes (0x{result['size']:x})",
@@ -1523,8 +1662,12 @@ async def handle_module_exports(args: dict) -> list[TextContent]:
         module_name=args["module_name"],
     )
 
-    parts = [f"## Exports: {args['module_name']}", "=" * 50, "",
-             f"Found {len(exports)} export(s):\n"]
+    parts = [
+        f"## Exports: {args['module_name']}",
+        "=" * 50,
+        "",
+        f"Found {len(exports)} export(s):\n",
+    ]
     parts.append(f"{'Ordinal':>8}  {'Address':>18}  {'Name'}")
     parts.append("-" * 60)
     for e in exports:
@@ -1551,8 +1694,12 @@ async def handle_module_imports(args: dict) -> list[TextContent]:
         module_name=args["module_name"],
     )
 
-    parts = [f"## Imports: {args['module_name']}", "=" * 50, "",
-             f"Found {len(imports)} import(s):\n"]
+    parts = [
+        f"## Imports: {args['module_name']}",
+        "=" * 50,
+        "",
+        f"Found {len(imports)} import(s):\n",
+    ]
     parts.append(f"{'Address':>18}  {'Module':<30}  {'Name'}")
     parts.append("-" * 70)
     for imp in imports:
@@ -1584,17 +1731,17 @@ async def handle_pointer_read(args: dict) -> list[TextContent]:
     parts = ["## Pointer Chain Result", "=" * 50, ""]
 
     # Show the chain
-    chain = result.get('chain', [])
+    chain = result.get("chain", [])
     offsets = args["offsets"]
     chain_str = chain[0] if chain else args["base_address"]
     for i, off in enumerate(offsets):
-        sign = '+' if off >= 0 else '-'
+        sign = "+" if off >= 0 else "-"
         chain_str = f"[{chain_str}]{sign}0x{abs(off):x}"
     parts.append(f"**Chain:** {chain_str}")
     parts.append(f"**Resolved path:** {' -> '.join(chain)}")
     parts.append("")
 
-    if result['success']:
+    if result["success"]:
         parts.append(f"**Final address:** {result['final_address']}")
         parts.append(f"**Value:** {result['value']}")
         parts.append(f"**Raw:** {result['raw_hex']}")
@@ -1622,8 +1769,7 @@ async def handle_process_regions(args: dict) -> list[TextContent]:
     )
 
     target = f"PID {pid}" if pid else process_name
-    parts = [f"## Memory Regions: {target}", "=" * 50, "",
-             f"Found {len(regions)} region(s):\n"]
+    parts = [f"## Memory Regions: {target}", "=" * 50, "", f"Found {len(regions)} region(s):\n"]
     parts.append(f"{'Address':>18}  {'Size':>10}  {'Protection':<16}  {'Type':<12}  {'Info'}")
     parts.append("-" * 80)
     for r in regions:
@@ -1646,13 +1792,22 @@ async def handle_scatter_read(args: dict) -> list[TextContent]:
     mode = mode_string(pid, process_name)
     w = get_wrapper()
     results = await asyncio.to_thread(
-        w.scatter_read, args["reads"], pid=pid, process_name=process_name,
+        w.scatter_read,
+        args["reads"],
+        pid=pid,
+        process_name=process_name,
     )
 
-    parts = [f"## Scatter Read Results ({mode})", "=" * 50, "",
-             f"Read {len(results)} region(s) in one batch:\n"]
+    parts = [
+        f"## Scatter Read Results ({mode})",
+        "=" * 50,
+        "",
+        f"Read {len(results)} region(s) in one batch:\n",
+    ]
     for i, r in enumerate(results, 1):
-        parts.append(f"{i}. **{r['address']}** ({r['size']} bytes): `{r['data'][:64]}{'...' if len(r['data']) > 64 else ''}`")
+        parts.append(
+            f"{i}. **{r['address']}** ({r['size']} bytes): `{r['data'][:64]}{'...' if len(r['data']) > 64 else ''}`"
+        )
 
     return [TextContent(type="text", text="\n".join(parts))]
 
@@ -1669,16 +1824,24 @@ async def handle_pe_sections(args: dict) -> list[TextContent]:
 
     w = get_wrapper()
     sections = await asyncio.to_thread(
-        w.pe_sections, pid=pid, process_name=process_name,
+        w.pe_sections,
+        pid=pid,
+        process_name=process_name,
         module_name=args["module_name"],
     )
 
-    parts = [f"## PE Sections: {args['module_name']}", "=" * 50, "",
-             f"Found {len(sections)} section(s):\n"]
-    parts.append(f"{'Name':<12}  {'Virtual Address':>18}  {'VSize':>10}  {'RawSize':>10}  {'Flags'}")
+    parts = [
+        f"## PE Sections: {args['module_name']}",
+        "=" * 50,
+        "",
+        f"Found {len(sections)} section(s):\n",
+    ]
+    parts.append(
+        f"{'Name':<12}  {'Virtual Address':>18}  {'VSize':>10}  {'RawSize':>10}  {'Flags'}"
+    )
     parts.append("-" * 80)
     for s in sections:
-        flags = ', '.join(s['flags'])
+        flags = ", ".join(s["flags"])
         parts.append(
             f"{s['name']:<12}  {s['virtual_address']:>18}  "
             f"{s['virtual_size']:>10}  {s['raw_size']:>10}  {flags}"
@@ -1701,7 +1864,8 @@ async def handle_signature_resolve(args: dict) -> list[TextContent]:
     result = await asyncio.to_thread(
         w.signature_resolve,
         args["pattern"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         module=args.get("module"),
         op_offset=args.get("op_offset", 3),
         op_length=args.get("op_length", 4),
@@ -1709,14 +1873,13 @@ async def handle_signature_resolve(args: dict) -> list[TextContent]:
         instruction_length=args.get("instruction_length"),
     )
 
-    parts = ["## Signature Resolve Result", "=" * 50, "",
-             f"**Pattern:** `{result['pattern']}`", ""]
+    parts = ["## Signature Resolve Result", "=" * 50, "", f"**Pattern:** `{result['pattern']}`", ""]
 
-    if result['success']:
+    if result["success"]:
         parts.append(f"**Match address:** {result['match_address']}")
         parts.append(f"**Operand value:** {result['operand']}")
         parts.append(f"**Resolved address:** {result['resolved_address']}")
-        if result.get('instruction_length'):
+        if result.get("instruction_length"):
             parts.append(f"**Instruction length:** {result['instruction_length']}")
     else:
         parts.append(f"**Failed:** {result['error']}")
@@ -1737,19 +1900,19 @@ async def handle_rtti_scan(args: dict) -> list[TextContent]:
     w = get_wrapper()
     classes = await asyncio.to_thread(
         w.rtti_scan,
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         module=args["module"],
         max_classes=args.get("max_classes", 500),
     )
 
-    parts = [f"## RTTI Scan: {args['module']}", "=" * 50, "",
-             f"Found {len(classes)} class(es):\n"]
+    parts = [f"## RTTI Scan: {args['module']}", "=" * 50, "", f"Found {len(classes)} class(es):\n"]
 
     for i, c in enumerate(classes, 1):
         line = f"{i}. **{c['class_name']}**"
-        if c.get('vtable'):
+        if c.get("vtable"):
             line += f"  vtable: {c['vtable']}"
-        if c.get('base_classes'):
+        if c.get("base_classes"):
             line += f"  extends: {', '.join(c['base_classes'])}"
         parts.append(line)
         parts.append(f"   TD: {c['type_descriptor']}  mangled: `{c['mangled_name']}`")
@@ -1772,19 +1935,19 @@ async def handle_struct_analyze(args: dict) -> list[TextContent]:
         w.struct_analyze,
         args["address"],
         size=args.get("size", 256),
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
     )
 
-    parts = [f"## Struct Analysis: {result['base_address']} ({result['size']} bytes)",
-             "=" * 50, ""]
+    parts = [f"## Struct Analysis: {result['base_address']} ({result['size']} bytes)", "=" * 50, ""]
 
-    for f in result['fields']:
+    for f in result["fields"]:
         line = f"  +{f['offset']:<8} [{f['type']:<12}] {f['value']}"
-        if f.get('target_string'):
+        if f.get("target_string"):
             line += f'  -> "{f["target_string"]}"'
         parts.append(line)
 
-    if result.get('pointer_targets'):
+    if result.get("pointer_targets"):
         parts.append(f"\n**Pointer targets:** {len(result['pointer_targets'])} resolved")
 
     return [TextContent(type="text", text="\n".join(parts))]
@@ -1803,7 +1966,8 @@ async def handle_string_scan(args: dict) -> list[TextContent]:
     w = get_wrapper()
     results = await asyncio.to_thread(
         w.string_scan,
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         module=args.get("module"),
         min_length=args.get("min_length", 4),
         encoding=args.get("encoding", "both"),
@@ -1812,11 +1976,17 @@ async def handle_string_scan(args: dict) -> list[TextContent]:
     )
 
     module_info = f" in {args['module']}" if args.get("module") else ""
-    parts = [f"## String Scan Results{module_info}", "=" * 50, "",
-             f"Found {len(results)} string(s):\n"]
+    parts = [
+        f"## String Scan Results{module_info}",
+        "=" * 50,
+        "",
+        f"Found {len(results)} string(s):\n",
+    ]
 
     for i, s in enumerate(results[:100], 1):  # Show first 100 in output
-        parts.append(f"{i}. [{s['encoding']}] **{s['address']}** ({s['length']} chars): `{s['string'][:80]}`")
+        parts.append(
+            f"{i}. [{s['encoding']}] **{s['address']}** ({s['length']} chars): `{s['string'][:80]}`"
+        )
 
     if len(results) > 100:
         parts.append(f"\n... and {len(results) - 100} more (truncated)")
@@ -1835,37 +2005,43 @@ async def handle_memory_diff(args: dict) -> list[TextContent]:
     w = get_wrapper()
     result = await asyncio.to_thread(
         w.memory_diff,
-        args["address"], args["size"],
+        args["address"],
+        args["size"],
         label=args.get("label", "default"),
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
     )
 
     parts = ["## Memory Diff Result", "=" * 50, ""]
 
-    if result['action'] == 'snapshot_taken':
+    if result["action"] == "snapshot_taken":
         parts.append(f"**Snapshot taken:** {result['label']}")
         parts.append(f"**Address:** {result['address']} ({result['size']} bytes)")
         parts.append(f"\n{result['message']}")
     else:
         parts.append(f"**Label:** {result['label']}")
         parts.append(f"**Region:** {result['address']} ({result['size']} bytes)")
-        parts.append(f"**Changes:** {result['total_changes']} region(s), {result['bytes_changed']} byte(s)\n")
+        parts.append(
+            f"**Changes:** {result['total_changes']} region(s), {result['bytes_changed']} byte(s)\n"
+        )
 
-        if not result['changes']:
+        if not result["changes"]:
             parts.append("No changes detected.")
         else:
-            for i, c in enumerate(result['changes'][:50], 1):
-                parts.append(f"{i}. **{c['address']}** (+{c['offset']}, {c['size']}B): `{c['old']}` -> `{c['new']}`")
-                if c.get('as_int32'):
+            for i, c in enumerate(result["changes"][:50], 1):
+                parts.append(
+                    f"{i}. **{c['address']}** (+{c['offset']}, {c['size']}B): `{c['old']}` -> `{c['new']}`"
+                )
+                if c.get("as_int32"):
                     parts.append(f"   int32: {c['as_int32']}")
-                if c.get('as_float'):
+                if c.get("as_float"):
                     parts.append(f"   float: {c['as_float']}")
-                if c.get('as_int64'):
+                if c.get("as_int64"):
                     parts.append(f"   int64: {c['as_int64']}")
-                if c.get('as_byte'):
+                if c.get("as_byte"):
                     parts.append(f"   byte: {c['as_byte']}")
 
-            if len(result['changes']) > 50:
+            if len(result["changes"]) > 50:
                 parts.append(f"\n... and {len(result['changes']) - 50} more changes (truncated)")
 
     return [TextContent(type="text", text="\n".join(parts))]
@@ -1885,21 +2061,26 @@ async def handle_pointer_scan(args: dict) -> list[TextContent]:
     result = await asyncio.to_thread(
         w.pointer_scan,
         args["target_address"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         max_depth=args.get("max_depth", 5),
         max_offset=args.get("max_offset", 4096),
         max_results=args.get("max_results", 100),
         module_filter=args.get("module_filter"),
     )
 
-    stats = result.get('stats', {})
-    parts = [f"## Pointer Scan Results", "=" * 50, "",
-             f"**Target:** {stats.get('target', args['target_address'])}",
-             f"**Depth:** {stats.get('levels_searched', 0)}/{stats.get('max_depth', 0)}",
-             f"**Addresses scanned:** {stats.get('addresses_scanned', 0)}",
-             f"**Chains found:** {stats.get('total_chains_found', 0)}\n"]
+    stats = result.get("stats", {})
+    parts = [
+        f"## Pointer Scan Results",
+        "=" * 50,
+        "",
+        f"**Target:** {stats.get('target', args['target_address'])}",
+        f"**Depth:** {stats.get('levels_searched', 0)}/{stats.get('max_depth', 0)}",
+        f"**Addresses scanned:** {stats.get('addresses_scanned', 0)}",
+        f"**Chains found:** {stats.get('total_chains_found', 0)}\n",
+    ]
 
-    chains = result.get('chains', [])
+    chains = result.get("chains", [])
     if not chains:
         parts.append("No pointer chains found.")
     else:
@@ -1927,27 +2108,34 @@ async def handle_xref_scan(args: dict) -> list[TextContent]:
     result = await asyncio.to_thread(
         w.xref_scan,
         args["target_address"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         module=args["module"],
         scan_code=args.get("scan_code", True),
         scan_data=args.get("scan_data", True),
         max_results=args.get("max_results", 200),
     )
 
-    code_refs = result.get('code_refs', [])
-    data_refs = result.get('data_refs', [])
-    stats = result.get('stats', {})
+    code_refs = result.get("code_refs", [])
+    data_refs = result.get("data_refs", [])
+    stats = result.get("stats", {})
 
-    parts = [f"## XRef Scan: {result.get('module', args['module'])}", "=" * 50, "",
-             f"**Target:** {result.get('target', args['target_address'])}",
-             f"**Code refs:** {len(code_refs)}",
-             f"**Data refs:** {len(data_refs)}",
-             f"**Bytes scanned:** {stats.get('total_bytes_scanned', 0)}\n"]
+    parts = [
+        f"## XRef Scan: {result.get('module', args['module'])}",
+        "=" * 50,
+        "",
+        f"**Target:** {result.get('target', args['target_address'])}",
+        f"**Code refs:** {len(code_refs)}",
+        f"**Data refs:** {len(data_refs)}",
+        f"**Bytes scanned:** {stats.get('total_bytes_scanned', 0)}\n",
+    ]
 
     if code_refs:
         parts.append("### Code References")
         for i, r in enumerate(code_refs[:100], 1):
-            parts.append(f"{i}. **{r['address']}** [{r['type']}] `{r.get('instruction_bytes', '')}`  ({r['section']})")
+            parts.append(
+                f"{i}. **{r['address']}** [{r['type']}] `{r.get('instruction_bytes', '')}`  ({r['section']})"
+            )
 
     if data_refs:
         parts.append("\n### Data References")
@@ -1974,17 +2162,22 @@ async def handle_ue_dump_names(args: dict) -> list[TextContent]:
     result = await asyncio.to_thread(
         w.ue_dump_names,
         args["gnames_address"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         max_names=args.get("max_names", 200000),
         ue_version=args.get("ue_version", "ue5"),
     )
 
-    parts = [f"## UE Name Dump", "=" * 50, "",
-             f"**GNames address:** {result.get('gnames_address', args['gnames_address'])}",
-             f"**Total names:** {result.get('total_names', 0)}",
-             f"**Blocks read:** {result.get('blocks_read', 0)}\n"]
+    parts = [
+        f"## UE Name Dump",
+        "=" * 50,
+        "",
+        f"**GNames address:** {result.get('gnames_address', args['gnames_address'])}",
+        f"**Total names:** {result.get('total_names', 0)}",
+        f"**Blocks read:** {result.get('blocks_read', 0)}\n",
+    ]
 
-    names = result.get('names', [])
+    names = result.get("names", [])
     parts.append(f"### First {min(len(names), 50)} names:")
     for n in names[:50]:
         parts.append(f"  [{n['index']}] {n['name']}")
@@ -2009,21 +2202,26 @@ async def handle_ue_dump_objects(args: dict) -> list[TextContent]:
     result = await asyncio.to_thread(
         w.ue_dump_objects,
         args["gobjects_address"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         gnames_address=args.get("gnames_address"),
         max_objects=args.get("max_objects", 200000),
         ue_version=args.get("ue_version", "ue5"),
     )
 
-    parts = [f"## UE Object Dump", "=" * 50, "",
-             f"**GObjects address:** {result.get('gobjects_address', args['gobjects_address'])}",
-             f"**Total objects:** {result.get('total_objects', 0)}\n"]
+    parts = [
+        f"## UE Object Dump",
+        "=" * 50,
+        "",
+        f"**GObjects address:** {result.get('gobjects_address', args['gobjects_address'])}",
+        f"**Total objects:** {result.get('total_objects', 0)}\n",
+    ]
 
-    objects = result.get('objects', [])
+    objects = result.get("objects", [])
     parts.append(f"### First {min(len(objects), 50)} objects:")
     for o in objects[:50]:
         line = f"  [{o['index']}] {o.get('name', '?')} ({o.get('class_name', '?')})"
-        if o.get('outer'):
+        if o.get("outer"):
             line += f" in {o['outer']}"
         parts.append(line)
 
@@ -2048,24 +2246,29 @@ async def handle_ue_dump_sdk(args: dict) -> list[TextContent]:
         w.ue_dump_sdk,
         args["gobjects_address"],
         args["gnames_address"],
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         output_file=args.get("output_file"),
         max_classes=args.get("max_classes", 5000),
         ue_version=args.get("ue_version", "ue5"),
     )
 
-    parts = [f"## UE SDK Dump", "=" * 50, "",
-             f"**Total classes:** {result.get('total_classes', 0)}",
-             f"**Total properties:** {result.get('total_properties', 0)}"]
+    parts = [
+        f"## UE SDK Dump",
+        "=" * 50,
+        "",
+        f"**Total classes:** {result.get('total_classes', 0)}",
+        f"**Total properties:** {result.get('total_properties', 0)}",
+    ]
 
-    if result.get('output_file'):
+    if result.get("output_file"):
         parts.append(f"**Output file:** {result['output_file']}")
 
-    classes = result.get('classes', [])
+    classes = result.get("classes", [])
     if classes:
         parts.append(f"\n### Class summary ({min(len(classes), 50)} shown):")
         for c in classes[:50]:
-            super_str = f" : {c['super']}" if c.get('super') else ""
+            super_str = f" : {c['super']}" if c.get("super") else ""
             parts.append(f"  {c['name']}{super_str} (0x{c['size']:x}, {c['property_count']} props)")
 
     return [TextContent(type="text", text="\n".join(parts))]
@@ -2084,28 +2287,35 @@ async def handle_unity_il2cpp_dump(args: dict) -> list[TextContent]:
     w = get_wrapper()
     result = await asyncio.to_thread(
         w.unity_il2cpp_dump,
-        pid=pid, process_name=process_name,
+        pid=pid,
+        process_name=process_name,
         output_file=args.get("output_file"),
         max_classes=args.get("max_classes", 5000),
     )
 
-    parts = [f"## Unity IL2CPP Dump", "=" * 50, "",
-             f"**GameAssembly:** {result.get('game_assembly', 'N/A')}",
-             f"**Metadata address:** {result.get('metadata_address', 'N/A')}",
-             f"**Metadata version:** {result.get('metadata_version', 'N/A')}",
-             f"**Total types:** {result.get('total_types', 0)}",
-             f"**Total fields:** {result.get('total_fields', 0)}",
-             f"**Total methods:** {result.get('total_methods', 0)}"]
+    parts = [
+        f"## Unity IL2CPP Dump",
+        "=" * 50,
+        "",
+        f"**GameAssembly:** {result.get('game_assembly', 'N/A')}",
+        f"**Metadata address:** {result.get('metadata_address', 'N/A')}",
+        f"**Metadata version:** {result.get('metadata_version', 'N/A')}",
+        f"**Total types:** {result.get('total_types', 0)}",
+        f"**Total fields:** {result.get('total_fields', 0)}",
+        f"**Total methods:** {result.get('total_methods', 0)}",
+    ]
 
-    if result.get('output_file'):
+    if result.get("output_file"):
         parts.append(f"**Output file:** {result['output_file']}")
 
-    classes = result.get('classes', [])
+    classes = result.get("classes", [])
     if classes:
         parts.append(f"\n### Classes ({min(len(classes), 50)} shown):")
         for c in classes[:50]:
-            ns = f"{c['namespace']}." if c.get('namespace') else ""
-            parts.append(f"  {ns}{c['name']} ({c.get('field_count', 0)} fields, {c.get('method_count', 0)} methods)")
+            ns = f"{c['namespace']}." if c.get("namespace") else ""
+            parts.append(
+                f"  {ns}{c['name']} ({c.get('field_count', 0)} fields, {c.get('method_count', 0)} methods)"
+            )
 
     return [TextContent(type="text", text="\n".join(parts))]
 
@@ -2119,9 +2329,13 @@ async def handle_benchmark(args: dict) -> list[TextContent]:
     )
 
     parts = ["## Benchmark Results", "=" * 50, ""]
-    parts.append(f"**Read:** {result['read_mbps']} MB/s ({result['read_iterations']} iterations, {result['read_elapsed_s']}s)")
-    if 'write_mbps' in result:
-        parts.append(f"**Write:** {result['write_mbps']} MB/s ({result['write_iterations']} iterations, {result['write_elapsed_s']}s)")
+    parts.append(
+        f"**Read:** {result['read_mbps']} MB/s ({result['read_iterations']} iterations, {result['read_elapsed_s']}s)"
+    )
+    if "write_mbps" in result:
+        parts.append(
+            f"**Write:** {result['write_mbps']} MB/s ({result['write_iterations']} iterations, {result['write_elapsed_s']}s)"
+        )
 
     return [TextContent(type="text", text="\n".join(parts))]
 
@@ -2136,16 +2350,16 @@ async def handle_tlp_send(args: dict) -> list[TextContent]:
     )
 
     parts = ["## TLP Results", "=" * 50, ""]
-    if result['sent']:
+    if result["sent"]:
         parts.append(f"**Sent:** {result['sent_bytes']} bytes")
-        if 'sent_info' in result:
+        if "sent_info" in result:
             parts.append(f"```\n{result['sent_info']}\n```")
 
     parts.append(f"\n**Received TLPs:** {len(result['received_tlps'])}")
-    for i, tlp in enumerate(result['received_tlps'], 1):
+    for i, tlp in enumerate(result["received_tlps"], 1):
         parts.append(f"\n### TLP {i}")
         parts.append(f"Data: {tlp['data']}")
-        if 'info' in tlp:
+        if "info" in tlp:
             parts.append(f"```\n{tlp['info']}\n```")
 
     return [TextContent(type="text", text="\n".join(parts))]
@@ -2165,14 +2379,14 @@ async def handle_fpga_config(args: dict) -> list[TextContent]:
     parts.append(f"**Action:** {result['action']}")
     parts.append(f"**Success:** {result['success']}")
 
-    if result['action'] == 'read':
+    if result["action"] == "read":
         parts.append(f"**Size:** {result['size']} bytes")
         # Show first 256 bytes as hex dump
-        raw = bytes.fromhex(result['data_hex'])
+        raw = bytes.fromhex(result["data_hex"])
         preview = raw[:256]
         parts.append(f"\n### Config Space (first {len(preview)} bytes):")
         parts.append(f"```\n{format_hex_dump(preview, 0)}\n```")
-        if result.get('file'):
+        if result.get("file"):
             parts.append(f"**Saved to:** {result['file']}")
     else:
         parts.append(f"**Address:** {result.get('address')}")
@@ -2183,10 +2397,13 @@ async def handle_fpga_config(args: dict) -> list[TextContent]:
 
 # ==================== Device Lifecycle Handlers ====================
 
+
 async def handle_device_disconnect(args: dict) -> list[TextContent]:
     global wrapper
     if wrapper is None:
-        return [TextContent(type="text", text="Device is already disconnected (no active connection).")]
+        return [
+            TextContent(type="text", text="Device is already disconnected (no active connection).")
+        ]
 
     was_vmm = wrapper._vmm is not None
     was_lc = wrapper._lc is not None
@@ -2223,7 +2440,7 @@ async def handle_device_reconnect(args: dict) -> list[TextContent]:
         try:
             mem_map = vmm.maps.memmap()
             if mem_map:
-                max_addr = max(e['pa'] + e['cb'] for e in mem_map)
+                max_addr = max(e["pa"] + e["cb"] for e in mem_map)
                 info_parts.append(f"- Physical memory: {max_addr / (1024**3):.1f} GB")
         except Exception:
             pass
@@ -2237,11 +2454,16 @@ async def handle_device_reconnect(args: dict) -> list[TextContent]:
         return [TextContent(type="text", text="\n".join(parts))]
     except Exception as e:
         wrapper = None
-        return [TextContent(type="text", text=(
-            f"## Reconnection Failed\n\n"
-            f"Could not reconnect to device: {e}\n\n"
-            f"Make sure no other program is holding the FPGA device and try again."
-        ))]
+        return [
+            TextContent(
+                type="text",
+                text=(
+                    f"## Reconnection Failed\n\n"
+                    f"Could not reconnect to device: {e}\n\n"
+                    f"Make sure no other program is holding the FPGA device and try again."
+                ),
+            )
+        ]
 
 
 async def handle_device_status(args: dict) -> list[TextContent]:
@@ -2250,7 +2472,9 @@ async def handle_device_status(args: dict) -> list[TextContent]:
     if wrapper is None:
         parts.append("**Connection:** Disconnected")
         parts.append("")
-        parts.append("No wrapper instance exists. Use any MCP tool or **device_reconnect** to connect.")
+        parts.append(
+            "No wrapper instance exists. Use any MCP tool or **device_reconnect** to connect."
+        )
         return [TextContent(type="text", text="\n".join(parts))]
 
     vmm_active = wrapper._vmm is not None
@@ -2259,8 +2483,10 @@ async def handle_device_status(args: dict) -> list[TextContent]:
     if not vmm_active and not lc_active:
         parts.append("**Connection:** Idle (lazy init — not yet connected)")
         parts.append("")
-        parts.append("Wrapper exists but no device handles are open yet. "
-                     "They will be created on first tool use.")
+        parts.append(
+            "Wrapper exists but no device handles are open yet. "
+            "They will be created on first tool use."
+        )
     else:
         parts.append("**Connection:** Active")
         parts.append(f"- VMM (MemProcFS): {'connected' if vmm_active else 'not initialized'}")
@@ -2282,6 +2508,7 @@ async def handle_device_status(args: dict) -> list[TextContent]:
 
 # ==================== Entry Point ====================
 
+
 async def main():
     from mcp.server.stdio import stdio_server
 
@@ -2294,5 +2521,10 @@ async def main():
         )
 
 
-if __name__ == "__main__":
+def run():
+    """Synchronous entry point for the console script (used by ``uvx``/``pipx``)."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()
