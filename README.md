@@ -1,6 +1,7 @@
 # pcileech-memprocfs-mcp
 
 [![CI](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/codeql.yml/badge.svg)](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Neverdecel/pcileech-memprocfs-mcp/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Neverdecel/pcileech-memprocfs-mcp)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 <!-- Add back after first PyPI release:
@@ -297,7 +298,7 @@ Claude Code / MCP Client
     |
     | (MCP stdio transport)
     |
-main.py                 ← 34 tool schemas + async handlers + output formatting
+main.py                 ← 37 tool schemas + async handlers + output formatting
     |
 vmm_wrapper.py          ← Device init, memory ops, process/module enumeration
     |
