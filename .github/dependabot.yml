@@ -18,3 +18,9 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+
+  # Docker base image in the Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
