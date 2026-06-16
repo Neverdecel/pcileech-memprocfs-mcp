@@ -1,6 +1,7 @@
 # pcileech-memprocfs-mcp
 
 [![CI](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Neverdecel/pcileech-memprocfs-mcp/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Neverdecel/pcileech-memprocfs-mcp)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 <!-- Add back after first PyPI release:
 [![PyPI](https://img.shields.io/pypi/v/pcileech-memprocfs-mcp.svg)](https://pypi.org/project/pcileech-memprocfs-mcp/) -->
@@ -166,6 +167,44 @@ Edit `config.json`:
 When installed via `uvx`/`pipx`, the bundled `config.json` is read-only. Point
 at your own config instead by setting `PCILEECH_MCP_CONFIG=/path/to/config.json`
 in the environment (see the env block in the manual MCP config below).
+
+## Try it without hardware
+
+No FPGA? Point the server at a raw physical memory image instead of a device —
+every read/analysis tool then works against the dump exactly as it does against
+live hardware. Any raw dump works: a `pcileech dump` capture, a VM memory file,
+or a converted crash/hibernation image.
+
+```json
+{ "device": { "type": "file:///data/dump.raw", "remote": "", "extra_args": [] } }
+```
+
+```bash
+PCILEECH_MCP_CONFIG=/path/to/config.json uvx pcileech-memprocfs-mcp
+```
+
+## Running with Docker
+
+Build an image with the native libraries (`libusb`, `libfuse`, `liblz4`,
+`libssl`) baked in:
+
+```bash
+docker build -t pcileech-memprocfs-mcp .
+```
+
+The server speaks MCP over stdio, so a client launches it with `docker run -i`.
+DMA over a USB FPGA needs USB access from the host:
+
+```bash
+docker run --rm -i --device=/dev/bus/usb pcileech-memprocfs-mcp
+```
+
+Or run against a memory dump (no hardware):
+
+```bash
+docker run --rm -i -e PCILEECH_MCP_CONFIG=/data/config.json \
+  -v /path/on/host:/data:ro pcileech-memprocfs-mcp
+```
 
 ## Adding to Claude Code
 
