@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.neverdecel/pcileech-memprocfs-mcp",
+  "description": "Linux-native MCP server for PCILeech/MemProcFS DMA memory operations",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/Neverdecel/pcileech-memprocfs-mcp",
+    "source": "github"
+  },
+  "version": "3.0.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "pcileech-memprocfs-mcp",
+      "version": "3.0.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

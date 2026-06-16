@@ -677,7 +677,6 @@ class IL2CPP:
             raise Exception("GameAssembly.dll not found in process module list")
 
         ga_base = game_assembly.base
-        ga_size = game_assembly.image_size
 
         # Read .data section of GameAssembly.dll to find pointer to metadata
         # Parse PE headers to find .data section
@@ -910,7 +909,6 @@ class IL2CPP:
             classes.append(cls_info)
 
             # Generate C# class lines
-            full_name = f"{namespace}.{type_name}" if namespace else type_name
             cs_lines.append(f"// Namespace: {namespace}")
             cs_lines.append(f"public class {type_name} {{")
             for fld in fields:

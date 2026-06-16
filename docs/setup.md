@@ -38,8 +38,8 @@ sudo udevadm trigger
 
 ```bash
 # Clone
-git clone https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp.git
-cd nevercheese-pcileech-memprocfs-mcp
+git clone https://github.com/Neverdecel/pcileech-memprocfs-mcp.git
+cd pcileech-memprocfs-mcp
 
 # Create virtual environment
 python3 -m venv .venv
@@ -92,7 +92,7 @@ Passed directly to `memprocfs.Vmm()`. Useful options:
 ### Option 1: CLI (recommended)
 
 ```bash
-claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
+claude mcp add -s user pcileech-memprocfs-mcp -- \
   /full/path/to/.venv/bin/python \
   /full/path/to/main.py
 ```
@@ -104,7 +104,7 @@ Add to `~/.claude.json`:
 ```json
 {
   "mcpServers": {
-    "nevercheese-pcileech-memprocfs-mcp": {
+    "pcileech-memprocfs-mcp": {
       "command": "/full/path/to/.venv/bin/python",
       "args": ["/full/path/to/main.py"]
     }

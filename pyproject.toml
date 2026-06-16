@@ -1,5 +1,5 @@
 [project]
-name = "nevercheese-pcileech-memprocfs-mcp"
+name = "pcileech-memprocfs-mcp"
 version = "3.0.0"
 description = "Linux-native MCP Server for PCILeech/MemProcFS - DMA memory operations via Model Context Protocol"
 readme = "README.md"
@@ -41,17 +41,18 @@ dependencies = [
 dev = [
     "pytest>=7.0.0",
     "black>=23.0.0",
+    "ruff>=0.6.0",
     "mypy>=1.0.0",
 ]
 
 [project.scripts]
-nevercheese-pcileech-memprocfs-mcp = "main:run"
+pcileech-memprocfs-mcp = "main:run"
 
 [project.urls]
-Homepage = "https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp"
-Repository = "https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp"
-Issues = "https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/issues"
-Changelog = "https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/releases"
+Homepage = "https://github.com/Neverdecel/pcileech-memprocfs-mcp"
+Repository = "https://github.com/Neverdecel/pcileech-memprocfs-mcp"
+Issues = "https://github.com/Neverdecel/pcileech-memprocfs-mcp/issues"
+Changelog = "https://github.com/Neverdecel/pcileech-memprocfs-mcp/releases"
 
 [build-system]
 requires = ["hatchling"]
@@ -79,3 +80,7 @@ include = [
 [tool.black]
 line-length = 100
 target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

@@ -1,9 +1,9 @@
-# nevercheese-pcileech-memprocfs-mcp
+# pcileech-memprocfs-mcp
 
-[![CI](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Neverdecel/pcileech-memprocfs-mcp/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 <!-- Add back after first PyPI release:
-[![PyPI](https://img.shields.io/pypi/v/nevercheese-pcileech-memprocfs-mcp.svg)](https://pypi.org/project/nevercheese-pcileech-memprocfs-mcp/) -->
+[![PyPI](https://img.shields.io/pypi/v/pcileech-memprocfs-mcp.svg)](https://pypi.org/project/pcileech-memprocfs-mcp/) -->
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
 
 A Linux-native [Model Context Protocol](https://modelcontextprotocol.io/) server that gives AI assistants direct access to DMA-based memory operations through [PCILeech](https://github.com/ufrisk/pcileech) / [MemProcFS](https://github.com/ufrisk/MemProcFS).
@@ -113,13 +113,13 @@ No clone, no virtualenv — run the latest release directly with
 [`uv`](https://docs.astral.sh/uv/):
 
 ```bash
-uvx nevercheese-pcileech-memprocfs-mcp
+uvx pcileech-memprocfs-mcp
 ```
 
 Or install it as a persistent command with `pipx`:
 
 ```bash
-pipx install nevercheese-pcileech-memprocfs-mcp
+pipx install pcileech-memprocfs-mcp
 ```
 
 This uses the default FPGA device config. To point at a custom config (file
@@ -129,8 +129,8 @@ variable to a JSON file — see [Configuration](#configuration).
 ### From source
 
 ```bash
-git clone https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp.git
-cd nevercheese-pcileech-memprocfs-mcp
+git clone https://github.com/Neverdecel/pcileech-memprocfs-mcp.git
+cd pcileech-memprocfs-mcp
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -172,16 +172,16 @@ in the environment (see the env block in the manual MCP config below).
 **With `uvx`** (no path wrangling):
 
 ```bash
-claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
-  uvx nevercheese-pcileech-memprocfs-mcp
+claude mcp add -s user pcileech-memprocfs-mcp -- \
+  uvx pcileech-memprocfs-mcp
 ```
 
 **From a source checkout:**
 
 ```bash
-claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
-  /path/to/nevercheese-pcileech-memprocfs-mcp/.venv/bin/python \
-  /path/to/nevercheese-pcileech-memprocfs-mcp/main.py
+claude mcp add -s user pcileech-memprocfs-mcp -- \
+  /path/to/pcileech-memprocfs-mcp/.venv/bin/python \
+  /path/to/pcileech-memprocfs-mcp/main.py
 ```
 
 Or add to your MCP config manually:
@@ -189,9 +189,9 @@ Or add to your MCP config manually:
 ```json
 {
   "mcpServers": {
-    "nevercheese-pcileech-memprocfs-mcp": {
+    "pcileech-memprocfs-mcp": {
       "command": "uvx",
-      "args": ["nevercheese-pcileech-memprocfs-mcp"],
+      "args": ["pcileech-memprocfs-mcp"],
       "env": {
         "PCILEECH_MCP_CONFIG": "/path/to/config.json"
       }
