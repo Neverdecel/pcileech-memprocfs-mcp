@@ -16,7 +16,8 @@
 #     -v /path/on/host:/data:ro \
 #     pcileech-memprocfs-mcp
 
-FROM python:3.12-slim
+# Base image pinned by digest (Dependabot's docker ecosystem keeps it current).
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9
 
 # Runtime shared libraries that memprocfs / leechcorepyc load at runtime.
 RUN apt-get update && apt-get install -y --no-install-recommends \
