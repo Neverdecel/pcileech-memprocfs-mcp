@@ -7,7 +7,6 @@ Tests are split into:
 2. Integration test hints - require DMA hardware or valid memory dump
 """
 
-import json
 import os
 import sys
 import struct
@@ -72,10 +71,10 @@ def test_helpers():
 
 def test_mcp_tools():
     print("\n--- MCP Tool Registration ---")
-    from main import server, list_tools
+    from main import list_tools
 
     tools = asyncio.run(list_tools())
-    check(f"tool count is 37", len(tools) == 37)
+    check("tool count is 37", len(tools) == 37)
 
     expected_names = {
         "memory_read",
@@ -1145,7 +1144,7 @@ def test_xref_scanner_unit():
 
 def test_error_handling():
     print("\n--- Error Handling ---")
-    from main import call_tool, handle_memory_write
+    from main import call_tool
     from vmm_wrapper import MemoryAccessError
 
     # Test PCILeechError propagation through call_tool

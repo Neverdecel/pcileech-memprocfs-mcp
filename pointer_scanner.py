@@ -149,8 +149,7 @@ class PointerScanner:
                         if lo <= ptr_val <= hi:
                             total_scanned += 1
                             hit_addr = vad_start + pos
-                            offset_from_target = search_addr - ptr_val
-                            # Note: offset_from_target can be negative if ptr > search_addr
+                            # Note: current_offset can be negative if ptr > search_addr
                             # but the semantics are: [ptr_val] + offset = search_addr
                             # i.e., offset = search_addr - ptr_val
                             current_offset = search_addr - ptr_val

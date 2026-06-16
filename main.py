@@ -18,20 +18,15 @@ from mcp.types import Tool, TextContent
 from vmm_wrapper import (
     VmmWrapper,
     PCILeechError,
-    DeviceNotFoundError,
-    MemoryAccessError,
-    SignatureNotFoundError,
-    ProbeNotSupportedError,
-    KMDError,
     parse_hex_address,
     format_hex_dump,
 )
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("nevercheese-pcileech-memprocfs-mcp")
+logger = logging.getLogger("pcileech-memprocfs-mcp")
 
 wrapper: VmmWrapper | None = None
-server = Server("nevercheese-pcileech-memprocfs-mcp")
+server = Server("pcileech-memprocfs-mcp")
 
 
 def get_wrapper() -> VmmWrapper:
@@ -2071,7 +2066,7 @@ async def handle_pointer_scan(args: dict) -> list[TextContent]:
 
     stats = result.get("stats", {})
     parts = [
-        f"## Pointer Scan Results",
+        "## Pointer Scan Results",
         "=" * 50,
         "",
         f"**Target:** {stats.get('target', args['target_address'])}",
@@ -2169,7 +2164,7 @@ async def handle_ue_dump_names(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        f"## UE Name Dump",
+        "## UE Name Dump",
         "=" * 50,
         "",
         f"**GNames address:** {result.get('gnames_address', args['gnames_address'])}",
@@ -2210,7 +2205,7 @@ async def handle_ue_dump_objects(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        f"## UE Object Dump",
+        "## UE Object Dump",
         "=" * 50,
         "",
         f"**GObjects address:** {result.get('gobjects_address', args['gobjects_address'])}",
@@ -2254,7 +2249,7 @@ async def handle_ue_dump_sdk(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        f"## UE SDK Dump",
+        "## UE SDK Dump",
         "=" * 50,
         "",
         f"**Total classes:** {result.get('total_classes', 0)}",
@@ -2294,7 +2289,7 @@ async def handle_unity_il2cpp_dump(args: dict) -> list[TextContent]:
     )
 
     parts = [
-        f"## Unity IL2CPP Dump",
+        "## Unity IL2CPP Dump",
         "=" * 50,
         "",
         f"**GameAssembly:** {result.get('game_assembly', 'N/A')}",
@@ -2513,7 +2508,7 @@ async def main():
     from mcp.server.stdio import stdio_server
 
     async with stdio_server() as (read_stream, write_stream):
-        logger.info("nevercheese-pcileech-memprocfs-mcp starting...")
+        logger.info("pcileech-memprocfs-mcp starting...")
         await server.run(
             read_stream,
             write_stream,

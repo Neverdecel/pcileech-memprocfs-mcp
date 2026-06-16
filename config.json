@@ -5,7 +5,7 @@
     "extra_args": []
   },
   "server": {
-    "name": "nevercheese-pcileech-memprocfs-mcp",
-    "version": "1.0.0"
+    "name": "pcileech-memprocfs-mcp",
+    "version": "3.0.0"
   }
 }

@@ -38,8 +38,8 @@ sudo udevadm trigger
 
 ```bash
 # Clone
-git clone https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp.git
-cd nevercheese-pcileech-memprocfs-mcp
+git clone https://github.com/Neverdecel/pcileech-memprocfs-mcp.git
+cd pcileech-memprocfs-mcp
 
 # Create virtual environment
 python3 -m venv .venv
@@ -92,7 +92,7 @@ Passed directly to `memprocfs.Vmm()`. Useful options:
 ### Option 1: CLI (recommended)
 
 ```bash
-claude mcp add -s user nevercheese-pcileech-memprocfs-mcp -- \
+claude mcp add -s user pcileech-memprocfs-mcp -- \
   /full/path/to/.venv/bin/python \
   /full/path/to/main.py
 ```
@@ -104,7 +104,7 @@ Add to `~/.claude.json`:
 ```json
 {
   "mcpServers": {
-    "nevercheese-pcileech-memprocfs-mcp": {
+    "pcileech-memprocfs-mcp": {
       "command": "/full/path/to/.venv/bin/python",
       "args": ["/full/path/to/main.py"]
     }
@@ -116,7 +116,7 @@ Restart Claude Code after adding.
 
 ## Verify
 
-After restarting Claude Code, the 15 tools should appear. Ask Claude:
+After restarting Claude Code, the 37 tools should appear. Ask Claude:
 
 ```
 Use system_info to check if the DMA device is connected
@@ -129,14 +129,40 @@ PCILeech error: Failed to initialize MemProcFS: Vmm.init(): Initialization of vm
 
 This confirms the MCP server is running — it just can't reach hardware.
 
-## Testing without hardware
+## Without DMA hardware
+
+### Run the test suite (mocks)
 
 ```bash
 source .venv/bin/activate
 python test_server.py
 ```
 
-Runs 66 unit tests using mocks. No DMA device needed.
+Runs 164 unit tests using mocks. No DMA device needed.
+
+### Analyze a memory dump (no FPGA)
+
+You don't need an FPGA to do real work — point the server at a raw physical
+memory image instead of a device. Any raw dump works: a `pcileech dump`
+capture, a VM memory file, or a converted crash/hibernation image.
+
+```json
+{
+  "device": {
+    "type": "file:///data/dump.raw",
+    "remote": "",
+    "extra_args": []
+  }
+}
+```
+
+```bash
+PCILEECH_MCP_CONFIG=/path/to/config.json pcileech-memprocfs-mcp
+```
+
+All read/analysis tools (`process_list`, `module_list`, `aob_scan`,
+`rtti_scan`, `pointer_scan`, the UE/Unity dumpers, …) then operate on the dump
+exactly as they would against live hardware.
 
 ## Troubleshooting
 

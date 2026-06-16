@@ -12,7 +12,6 @@ import re
 import time
 import struct
 from pathlib import Path
-from typing import Optional
 
 # ==================== Constants ====================
 _U64_MAX = 0xFFFFFFFFFFFFFFFF
@@ -1786,7 +1785,6 @@ class VmmWrapper:
         self, tlp_data: str | None = None, wait_seconds: float = 0.5, verbose: bool = True
     ) -> dict:
         lc = self._get_lc()
-        import leechcorepyc
 
         result = {
             "sent": False,

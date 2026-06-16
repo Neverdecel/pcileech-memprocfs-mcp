@@ -4,7 +4,7 @@
 
 Please **do not** open a public issue for security vulnerabilities.
 
-Report privately via [GitHub Security Advisories](https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp/security/advisories/new)
+Report privately via [GitHub Security Advisories](https://github.com/Neverdecel/pcileech-memprocfs-mcp/security/advisories/new)
 (the "Report a vulnerability" button under the **Security** tab). You'll get an
 acknowledgement and a fix or mitigation will be coordinated before any public
 disclosure.

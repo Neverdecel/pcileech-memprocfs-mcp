@@ -6,8 +6,8 @@ are welcome — bug reports, new tools, docs, and tests.
 ## Development setup
 
 ```bash
-git clone https://github.com/Neverdecel/nevercheese-pcileech-memprocfs-mcp.git
-cd nevercheese-pcileech-memprocfs-mcp
+git clone https://github.com/Neverdecel/pcileech-memprocfs-mcp.git
+cd pcileech-memprocfs-mcp
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -19,13 +19,16 @@ mocks.
 
 ## Before you open a PR
 
-Run both checks locally. CI runs the same ones and will block on failure.
+Run these checks locally. CI runs the same ones and will block on failure.
 
 ```bash
 # 1. Tests (164 checks, no hardware needed)
 python test_server.py
 
-# 2. Formatting
+# 2. Lint
+ruff check .
+
+# 3. Formatting
 black --check --line-length 100 .
 ```
 
